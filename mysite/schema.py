@@ -1,9 +1,13 @@
+import datetime
 import graphene
 from graphene_django import DjangoObjectType
 from graphene import relay, ObjectType
 from student_management.models import Employee,Project
 from graphene_django.rest_framework.mutation import SerializerMutation
 from student_management.serializers.employeeSerializer import EmployeeSerializer
+
+from student_management.constants import CLOSED_PHASE
+
 class EmployeeList(DjangoObjectType):
     class Meta:
         model = Employee
@@ -64,20 +68,33 @@ class CreateEmployee(SerializerMutation):
 class CreateProject(graphene.Mutation):
     class Arguments:
         name = graphene.String(required=True)
+        estimatedDate = graphene.String()
+        phase = graphene.String(required=True)
+        description = graphene.String()
     project = graphene.Field(Projectlist)
-    def mutate(self, info, name):
-        print((name))
-        project = Project.objects.create(name=name)
+    def mutate(self, info, name, estimatedDate, phase, description):
+        project = Project.objects.create(name=name, estimated_date=estimatedDate, 
+        phase=phase, description=description)
         return CreateProject(project=project)
 
 class UpdateProject(graphene.Mutation):
     class Arguments:
         name = graphene.String(required=True)
+        estimatedDate = graphene.String()
+        phase = graphene.String(required=True)
+        description = graphene.String()
         id = graphene.ID(required=True)
     project = graphene.Field(Projectlist)
-    def mutate(self, info, name, id):
+    def mutate(self, info, name, id, estimatedDate, phase, description):
         project = Project.objects.get(id=id)
         project.name = name
+        project.estimated_date = estimatedDate
+        project.phase = phase
+        project.description = description
+        if phase == CLOSED_PHASE:
+            project.closed_date = datetime.datetime.now()
+        else:
+            project.closed_date = None
         project.save()
         return UpdateProject(project=project)
 
