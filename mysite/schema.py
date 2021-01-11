@@ -15,6 +15,7 @@ class Projectlist(DjangoObjectType):
         model = Project
         fields = '__all__'
         # interfaces = (relay.Node, )
+        
 
 
 class Query(graphene.ObjectType):
@@ -60,14 +61,39 @@ class CreateEmployee(SerializerMutation):
     
 
 
+class CreateProject(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+    project = graphene.Field(Projectlist)
+    def mutate(self, info, name):
+        print((name))
+        project = Project.objects.create(name=name)
+        return CreateProject(project=project)
+
+class UpdateProject(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        id = graphene.ID(required=True)
+    project = graphene.Field(Projectlist)
+    def mutate(self, info, name, id):
+        project = Project.objects.get(id=id)
+        project.name = name
+        project.save()
+        return UpdateProject(project=project)
+
+
+
 	# update_player = graphene.Field(EditPlayerMutation)
 class Mutation(graphene.ObjectType):
     create_employee=CreateEmployee.Field()
+    create_project = CreateProject.Field()
+    update_project = UpdateProject.Field()
     # debug = graphene.Field(DjangoDebug, name="_debug")
 
     # print(create_employee.__dict__)
    
         # return CreateActor(ok=ok, actor=actor_instance)
     # def mutation()
+
 
 schema = graphene.Schema(query=Query,mutation=Mutation)
