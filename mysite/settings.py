@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'graphene_django',
     'debug_toolbar',
-    'django_filters'
+    'django_filters',
+    'corsheaders'
 ]
 GRAPHENE = {
     "SCHEMA": "mysite.schema.schema"
@@ -53,6 +54,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.cache.UpdateCacheMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -90,13 +92,17 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'myproject',
-        'USER': 'myproject',
-        'PASSWORD': 'password',
+        'USER': 'admin',
+        'PASSWORD': 'admin@123',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
-
+CORS_ORIGIN_WHITELIST = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000"
+    # your React App domain]
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
