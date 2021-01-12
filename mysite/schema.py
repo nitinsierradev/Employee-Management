@@ -76,7 +76,7 @@ class CreateEmployee(graphene.Mutation):
         # description=graphene.String(required=True)
 class UpdateEmployee(graphene.Mutation):
     class Arguments:
-        id                  = graphene.Int(required=True)
+        id                  = graphene.ID(required=True)
         firstName           = graphene.String(required=True)
         lastName            = graphene.String(required=True)
         dob                 = graphene.String(required=True)
