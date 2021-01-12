@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 import sys
+
+from student_management.constants import INITIATION_PHASE, PROJECT_PHASES_CHOICES
 # Create your models here.
 
 class Project(models.Model):
@@ -8,6 +10,10 @@ class Project(models.Model):
     name                = models.CharField(max_length=100)
     is_active           = models.BooleanField(default=True)
     addedDate           = models.DateTimeField(auto_now_add=True)
+    description         = models.TextField(null=True, blank=True, default=None)
+    phase               = models.CharField(max_length=3, choices=PROJECT_PHASES_CHOICES, default=INITIATION_PHASE)
+    estimated_date      = models.DateTimeField(null=True, blank=True, default=None)
+    closed_date         = models.DateTimeField(null=True, blank=True, default=None)
 
     class Meta:
         db_table='project'

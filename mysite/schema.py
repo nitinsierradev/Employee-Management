@@ -6,6 +6,9 @@ from graphene_django.rest_framework.mutation import SerializerMutation
 from student_management.serializers.employeeSerializer import EmployeeSerializer
 from django.contrib.auth.models import User
 from datetime import datetime
+
+from student_management.constants import CLOSED_PHASE
+
 class EmployeeList(DjangoObjectType):
     class Meta:
         model = Employee
@@ -17,6 +20,7 @@ class Projectlist(DjangoObjectType):
         model = Project
         fields = '__all__'
         # interfaces = (relay.Node, )
+        
 
 
 class Query(graphene.ObjectType):
@@ -115,16 +119,58 @@ class DeleteEmployee(graphene.Mutation):
         employee.save()
         return employee
 
+class CreateProject(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        estimatedDate = graphene.String()
+        phase = graphene.String(required=True)
+        description = graphene.String()
+    project = graphene.Field(Projectlist)
+    def mutate(self, info, name, estimatedDate, phase, description):
+        if estimatedDate:
+            estimatedDate = datetime.strptime(estimatedDate, "%Y-%m-%d")
+        project = Project.objects.create(name=name, estimated_date=estimatedDate, 
+        phase=phase, description=description)
+        return CreateProject(project=project)
+
+class UpdateProject(graphene.Mutation):
+    class Arguments:
+        name = graphene.String(required=True)
+        estimatedDate = graphene.String()
+        phase = graphene.String(required=True)
+        description = graphene.String()
+        id = graphene.ID(required=True)
+    project = graphene.Field(Projectlist)
+    def mutate(self, info, name, id, estimatedDate, phase, description):
+        if estimatedDate:
+            estimatedDate = datetime.strptime(estimatedDate, "%Y-%m-%d")
+        project = Project.objects.get(id=id)
+        project.name = name
+        project.estimated_date = estimatedDate
+        project.phase = phase
+        project.description = description
+        if phase == CLOSED_PHASE:
+            project.closed_date = datetime.now()
+        else:
+            project.closed_date = None
+        project.save()
+        return UpdateProject(project=project)
+
+
+
 	# update_player = graphene.Field(EditPlayerMutation)
 class Mutation(graphene.ObjectType):
     create_employee=CreateEmployee.Field()
     update_employee=UpdateEmployee.Field()
     delete_employee=DeleteEmployee.Field()
     # debug = graphene.Field(DjangoDebug, name="_debug")`
+    create_project = CreateProject.Field()
+    update_project = UpdateProject.Field()
 
     # print(create_employee.__dict__)
    
         # return CreateActor(ok=ok, actor=actor_instance)
     # def mutation()
+
 
 schema = graphene.Schema(query=Query,mutation=Mutation)
