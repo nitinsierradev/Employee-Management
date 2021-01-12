@@ -73,6 +73,8 @@ class CreateProject(graphene.Mutation):
         description = graphene.String()
     project = graphene.Field(Projectlist)
     def mutate(self, info, name, estimatedDate, phase, description):
+        if estimatedDate:
+            estimatedDate = datetime.datetime.strptime(estimatedDate, "%Y-%m-%d")
         project = Project.objects.create(name=name, estimated_date=estimatedDate, 
         phase=phase, description=description)
         return CreateProject(project=project)
@@ -86,6 +88,8 @@ class UpdateProject(graphene.Mutation):
         id = graphene.ID(required=True)
     project = graphene.Field(Projectlist)
     def mutate(self, info, name, id, estimatedDate, phase, description):
+        if estimatedDate:
+            estimatedDate = datetime.datetime.strptime(estimatedDate, "%Y-%m-%d")
         project = Project.objects.get(id=id)
         project.name = name
         project.estimated_date = estimatedDate
